@@ -5,7 +5,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from database.database import get_db
 from schemas.schema import UserCreate
 from sqlalchemy.orm import Session
-from utilities.auth import get_hashed_password, verify_password, create_access_token, get_current_user, create_refresh_token, oauth2_scheme, role_required
+from utilities.auth import get_hashed_password, verify_password, create_access_token, get_current_user, create_refresh_token, oauth2_scheme,RoleChecker
 from sqlalchemy import or_
 from datetime import datetime
 
@@ -46,12 +46,10 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
             headers={"WWW-Authenticate": "Bearer"}
         )
     access_token = create_access_token(
-                           {"sub":db_user.username},
-                           {"roles":db_user.roles}
+                           {"sub":db_user.username,"roles":str(db_user.roles)}
                            )
     refresh_token = create_refresh_token(
-                           {"sub":db_user.username},
-                           {"roles":db_user.roles}
+                           {"sub":db_user.username,"roles":str(db_user.roles)},
                            )
     token_db = TokenTable(
                     user_id=db_user.id,  
@@ -104,5 +102,9 @@ async def read_users_me(current_user: Users = Depends(get_current_user)):
         )
     
 @router.get("/admin")
-def admin_panel(payload: dict = Depends(role_required(["admin"]))):
-    return {"message": "Welcome to the admin panel.", "payload": payload}
+def admin_panel(permission: bool = Depends(RoleChecker(required_permissions=['admin']))):
+     if permission:
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content="This is admin panel"
+        )
