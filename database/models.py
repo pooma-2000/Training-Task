@@ -1,8 +1,19 @@
-from sqlalchemy import Column, Integer, String, DateTime, func, Boolean, ForeignKey, Enum, ARRAY
 from database.database import Base
-from datetime import datetime
-from typing import List
 from database.db_enum import Roles
+
+from sqlalchemy import (
+        Column,
+        Integer, 
+        String, 
+        DateTime,
+        func, 
+        Boolean, 
+        ForeignKey, 
+        Enum,
+        ARRAY
+    )
+
+from datetime import datetime
 
 class BaseModel(Base):
     __abstract__ = True

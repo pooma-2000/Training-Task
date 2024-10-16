@@ -1,16 +1,17 @@
-from dotenv import load_dotenv
-from passlib.context import CryptContext
-import os
-from datetime import datetime, timedelta
-import jwt
-from fastapi import HTTPException,status, Depends
 from database.models import Users
-from fastapi.security import OAuth2PasswordBearer
-from sqlalchemy.orm import Session
 from database.database import get_db
 from database.models import TokenTable, Users
-from fastapi.responses import JSONResponse
-from typing import List
+
+from fastapi import HTTPException,status, Depends
+from fastapi.security import OAuth2PasswordBearer
+from sqlalchemy.orm import Session
+from dotenv import load_dotenv
+from passlib.context import CryptContext
+
+from datetime import datetime, timedelta
+import os
+import jwt
+
 
 load_dotenv() #to load env file
 
