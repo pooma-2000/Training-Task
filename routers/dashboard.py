@@ -2,8 +2,10 @@ from utilities.auth import RoleChecker, get_current_user
 from routers.authentication import router
 from database.models import Users
 
-from fastapi import Depends, status
+from fastapi import Depends, status, APIRouter
 from fastapi.responses import JSONResponse
+
+router = APIRouter()
 
 @router.get("/users/me")
 async def read_users_me(current_user: Users = Depends(get_current_user)):

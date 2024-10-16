@@ -7,12 +7,8 @@ from fastapi import FastAPI
 app = FastAPI()
 
 import middleware
-app.include_router(
-        authentication.router
-        )
-app.include_router(
-        dashboard.router
-        )
+app.include_router(authentication.router)
+app.include_router(dashboard.router)
 
 models.Base.metadata.create_all(bind=engine)
 
