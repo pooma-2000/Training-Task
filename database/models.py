@@ -29,7 +29,7 @@ class Users(BaseModel):
     id = Column(Integer, primary_key=True, autoincrement=True)
     username = Column(String, unique=True, nullable=False)
     email = Column(String, unique=True, nullable=False)
-    roles = Column(ARRAY(Enum(Roles)), nullable=False)
+    role = Column(Enum(Roles), nullable=False)
     hashed_password = Column(String, nullable=False)
 
 class TokenTable(BaseModel):

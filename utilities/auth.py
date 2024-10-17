@@ -21,7 +21,7 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30
 REFRESH_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
 def get_hashed_password(password):
     return pwd_context.hash(password)
@@ -45,33 +45,16 @@ def verify_token(token):
     try:
         decoded_token = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username = decoded_token.get("sub")
+        role = decoded_token.get("role")
         if not username:
             return None
-        return username
+        return username,role
     except jwt.PyJWTError:
         return None
     
 def decode_token(token):
-
     decoded_token = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
     return decoded_token
-
-    
-# def role_required(required_roles: List[str]):
-#     def role_verifier(token_payload: dict = Depends(verify_token)):
-#         verify_role(required_roles, token_payload)
-#         return token_payload  # Return payload if role verification passes
-
-#     return role_verifier
-
-# def verify_role(roles: List[str], token_payload: dict):
-#     user_roles = token_payload.get("roles", [])
-#     # Check if the user has at least one of the required roles
-#     if not any(role in user_roles for role in roles):
-#         raise HTTPException(
-#             status_code=status.HTTP_403_FORBIDDEN,
-#             detail="Not enough permissions"
-        # )
   
 def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     db_token = db.query(TokenTable).filter(TokenTable.access_token == token).first()
@@ -81,7 +64,7 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
             detail="Login to access",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    username = verify_token(token)
+    username, token = verify_token(token)
     if username == None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -98,9 +81,8 @@ class RoleChecker:
         self.required_permissions = required_permissions
 
     def __call__(self, user: Users = Depends(get_current_user)) -> bool:
-        user_roles = [role.value for role in user.roles]
         for r_perm in self.required_permissions:
-            if r_perm not in user_roles:
+            if r_perm not in user.role:
                 raise HTTPException(
                     status_code=status.HTTP_401_UNAUTHORIZED,
                     detail='Access denied'

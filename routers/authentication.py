@@ -18,7 +18,10 @@ from sqlalchemy import or_
 
 from datetime import datetime
 
-router = APIRouter()
+router = APIRouter(
+    prefix="/auth",
+    tags=["authentication"]
+)
 
 @router.post("/register")
 def register_user(user: UserCreate, db: Session = Depends(get_db)):
@@ -35,7 +38,7 @@ def register_user(user: UserCreate, db: Session = Depends(get_db)):
     new_user = Users(
                     username=user.username,
                     email=user.email,
-                    roles = user.roles,
+                    role = user.role,
                     hashed_password=hashed_password
                    )
     db.add(new_user)
@@ -55,10 +58,10 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
             headers={"WWW-Authenticate": "Bearer"}
         )
     access_token = create_access_token(
-                           {"sub":db_user.username,"roles":str(db_user.roles)}
+                           {"sub":db_user.username,"role":db_user.role.value}
                            )
     refresh_token = create_refresh_token(
-                           {"sub":db_user.username,"roles":str(db_user.roles)},
+                           {"sub":db_user.username,"role":db_user.role.value},
                            )
     token_db = TokenTable(
                     user_id=db_user.id,  

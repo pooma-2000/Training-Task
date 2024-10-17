@@ -6,8 +6,14 @@ from typing import List
 class UserCreate(BaseModel):
     username: str
     email: EmailStr
-    roles: List[Roles]
+    role: Roles
     password: str
+
+class UserDetails(BaseModel):
+    user_id: int
+    username: str
+    email: EmailStr
+    role: Roles
 
 class Token(BaseModel):
     access_token: str
