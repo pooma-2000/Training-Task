@@ -40,7 +40,7 @@ def get_user_profile(
         user_data = db.query(Users).filter(Users.id == user.id).first()
         return user_data if user_data else "User not found"
 
-@router.put("/edit_user/{user_id}", description="To edit the user's profile")
+@router.put("/edit_user", description="To edit the user's profile")
 def edit_user_details(
                 user_details: UserDetails, 
                 user: Users = Depends(get_current_user),
@@ -59,7 +59,7 @@ def edit_user_details(
         db.commit()
         return "User details updated successfully"
 
-@router.delete("/delete_user/{user_id}")
+@router.delete("/delete_user")
 def delete_user(
             user_id: int,
             user: Users = Depends(get_current_user),
@@ -71,7 +71,7 @@ def delete_user(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="User not found"
             )
-        db.delete(user_data)
+        user_data.is_active = False
         db.commit()
         return "User deleted successfully"  
     

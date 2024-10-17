@@ -20,41 +20,30 @@ def log_info(req_body, res_body):
 EXCLUDED_PATHS = ['/docs','/auth/login','/auth/register','/openapi.json', '/favicon.ico']
 
 RESOURCES_FOR_ROLES = {
-        "/dashboard/manage_users": {
-            "admin": ['read','delete','edit'],
-        },
-        "/dashboard/user_profile": {
-            "user": ['read','delete','edit'],
-            "admin": ['read','delete','edit']
-        },
-        "/dashboard/edit_user/{user_id}":{
-            "user": ['read','delete','edit'],
-            "admin": ['read','delete','edit']
-        },
-        "/dashboard/delete_user/{user_id}":{
-            "user": ['read','delete','edit'],
-            "admin": ['read','delete','edit']
-        }
+        "/dashboard/manage_users": ["admin"],
+        "/dashboard/user_profile": ["admin","user"],
+        "/dashboard/edit_user": ["admin"],
+        "/dashboard/delete_user": ["admin"]
     }
 
-def convert_method_to_action(request_method: str) -> str:
-    method_permission_mapping = {
-        "GET": "read",
-        "PUT": "edit",
-        "DELETE": "delete"
-    }
-    return method_permission_mapping.get(request_method)
+# def convert_method_to_action(request_method: str) -> str:
+#     method_permission_mapping = {
+#         "GET": "read",
+#         "PUT": "edit",
+#         "DELETE": "delete"
+#     }
+#     return method_permission_mapping.get(request_method)
 
-def has_permission(user_role, resource, required_permission):
+def has_permission(user_role, resource):
     if resource in RESOURCES_FOR_ROLES and user_role in RESOURCES_FOR_ROLES[resource]:
-        return required_permission in RESOURCES_FOR_ROLES[resource][user_role]
+        return True
     return False
 
 class RBACMiddleware(BaseHTTPMiddleware):
   async def dispatch(self, request: Request, call_next):
       try:
-        request_method = str(request.method).upper()
-        action = convert_method_to_action(request_method)
+        # request_method = str(request.method).upper()
+        # action = convert_method_to_action(request_method)
         resource = request.url.path
         if resource in EXCLUDED_PATHS:
                 return await call_next(request)
@@ -63,7 +52,7 @@ class RBACMiddleware(BaseHTTPMiddleware):
             token = token.split(" ")[1]
             _, role = verify_token(token)
          
-        if not has_permission(role, resource, action):
+        if not has_permission(role, resource):
             raise HTTPException(status_code=403, detail="Insufficient permissions")
         response = await call_next(request)
         return response
