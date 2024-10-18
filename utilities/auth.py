@@ -48,7 +48,7 @@ def verify_token(token):
         role = decoded_token.get("role")
         if not username:
             return None
-        return username,role
+        return username, role
     except jwt.PyJWTError:
         return None
     
@@ -64,7 +64,8 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
             detail="Login to access",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    username, token = verify_token(token)
+    username, _ = verify_token(token)
+
     if username == None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -88,6 +89,20 @@ class RoleChecker:
                     detail='Access denied'
                 )
         return True
+    
+
+# def get_token(request_headers):
+#     print(33333333333333, request_headers)
+#     token = request_headers.get("Authorization")
+#     if not token:
+#         raise HTTPException(
+#             status_code=status.HTTP_401_UNAUTHORIZED,
+#             detail="UnAuthorized"
+#         )
+#     if token.startswith("Bearer"):
+#         token = token.split(" ")[1] 
+
+#     return token
 
  
 

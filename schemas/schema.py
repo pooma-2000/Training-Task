@@ -1,19 +1,25 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel
 from database.db_enum import Roles
 
 from typing import List
 
 class UserCreate(BaseModel):
     username: str
-    email: EmailStr
+    email: str
     role: Roles
-    password: str
+    hashed_password: str
+
+    class Config:
+        from_attributes = True
 
 class UserDetails(BaseModel):
-    user_id: int
+    id: int
     username: str
-    email: EmailStr
+    email: str
     role: Roles
+
+    class Config:
+        from_attributes = True
 
 class Token(BaseModel):
     access_token: str

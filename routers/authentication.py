@@ -34,7 +34,7 @@ def register_user(user: UserCreate, db: Session = Depends(get_db)):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="User already exists"
         )
-    hashed_password = get_hashed_password(user.password)
+    hashed_password = get_hashed_password(user.hashed_password)
     new_user = Users(
                     username=user.username,
                     email=user.email,
@@ -73,6 +73,7 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
     return JSONResponse(
         status_code=status.HTTP_200_OK,
         content={
+            "user_id":db_user.id,
             "access_token":access_token,
             "refresh_token":refresh_token,
             "token_type":"Bearer"

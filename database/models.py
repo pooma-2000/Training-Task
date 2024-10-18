@@ -37,3 +37,25 @@ class TokenTable(BaseModel):
     user_id = Column(Integer, ForeignKey(Users.id), nullable=False)
     access_token = Column(String, primary_key=True)
     refresh_token = Column(String, nullable=False)
+
+class RequestLog(Base):
+    __tablename__ = 'request_logs'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    method = Column(String, nullable=False)
+    path = Column(String, nullable=False)
+    status_code = Column(Integer, nullable=False)
+    timestamp = Column(DateTime, default=func.now())
+
+class CriticalActionLog(Base):
+    __tablename__ = 'critical_action_logs'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(Integer, ForeignKey(Users.id), nullable=False)
+    action = Column(String, nullable=False)
+    timestamp = Column(DateTime, default=func.now())
+
+class Metrics(Base):
+    __tablename__ = 'metrics'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    total_users = Column(Integer, default=0)
+    login_attempts = Column(Integer, default=0)
+    profile_updates = Column(Integer, default=0)
